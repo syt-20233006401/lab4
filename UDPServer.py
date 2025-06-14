@@ -61,3 +61,12 @@ class UDPServer:
         try:
             with open(filename, 'rb') as file:
                 while True:
+                    data, addr = transfer_socket.recvfrom(2048)
+                    message = data.decode()
+                    if message.startswith("FILE") and "GET" in message:
+                        # Handle file chunk request
+                        parts = message.split()
+                        start = int(parts[parts.index("START") + 1])
+                        end = int(parts[parts.index("END") + 1])
+                        file.seek(start)
+                        chunk = file.read(end - start + 1)
