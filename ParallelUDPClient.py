@@ -137,3 +137,15 @@ class ParallelUDPClient:
                 with self.lock:
                     print(f"[Parallel Client] Timeout, retry {retry_count}/{self.max_retries}")
         return None
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 4 or len(sys.argv) > 5:
+        print("Usage: python3 ParallelUDPClient.py <host> <port> <file_list> [threads]")
+        sys.exit(1)
+    host = sys.argv[1]
+    port = int(sys.argv[2])
+    file_list = sys.argv[3]
+    max_threads = int(sys.argv[4]) if len(sys.argv) == 5 else 4
+    client = ParallelUDPClient(host, port, file_list, max_threads)
+    client.run()
