@@ -70,3 +70,28 @@ class UDPServer:
                         end = int(parts[parts.index("END") + 1])
                         file.seek(start)
                         chunk = file.read(end - start + 1)
+                        if not chunk:  # Check for empty data chunk
+                            print(f"[File Transfer] Warning: Empty data chunk {start}-{end}")
+                            continue
+                        print(f"[File Transfer] Actually read {len(chunk)} bytes of data")
+                        encoded_data = base64.b64encode(chunk).decode('utf-8')  # Base64 encoding
+                        # Send large data in chunks (avoid oversized UDP packets)
+                        max_chunk_size = 1024
+                        for i in range(0, len(encoded_data), max_chunk_size):
+                            chunk_part = encoded_data[i:i + max_chunk_size]
+                            response = (
+                                f"FILE {filename} OK START {start} END {end} "
+                                f"DATA {chunk_part}"
+                            )
+                            transfer_socket.sendto(response.encode(), (client_host, addr[1]))
+                        print(f"[File Transfer] Sent block {start}-{end} (original data {len(chunk)} bytes)")
+                    elif message.startswith("FILE") and "CLOSE" in message:
+                        # Handle close request
+                        response = f"FILE {filename} CLOSE_OK"
+                        transfer_socket.sendto(response.encode(), (client_host, addr[1]))
+                        print(f"[File Transfer] File {filename} transfer completed")
+                        break
+        except Exception as e:
+            print(f"[File Transfer] Error: {e}")
+        finally:
+            transfer_socket.close()  # Close transfer socket
