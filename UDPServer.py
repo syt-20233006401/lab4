@@ -58,3 +58,6 @@ class UDPServer:
         transfer_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         transfer_socket.bind(('', port))  # Bind transfer port
         print(f"[File Transfer] Starting file {filename} transfer on port {port}")
+        try:
+            with open(filename, 'rb') as file:
+                while True:
