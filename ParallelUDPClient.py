@@ -121,3 +121,19 @@ class ParallelUDPClient:
             transfer_socket.close()  # Close transfer socket
             if os.path.exists(temp_filename):
                 os.remove(temp_filename)  # Delete temp file
+    def send_with_retry(self, message, address, response_validator):
+        retry_count = 0
+        while retry_count < self.max_retries:
+            try:
+                self.socket.sendto(message.encode(), address)
+                data, _ = self.socket.recvfrom(2048)
+                response = data.decode()
+                if response_validator(response):
+                    return response
+            except socket.timeout:
+                retry_count += 1
+                new_timeout = min(5.0 * (retry_count + 1), 30)
+                self.socket.settimeout(new_timeout)
+                with self.lock:
+                    print(f"[Parallel Client] Timeout, retry {retry_count}/{self.max_retries}")
+        return None
