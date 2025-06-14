@@ -95,3 +95,12 @@ class UDPServer:
             print(f"[File Transfer] Error: {e}")
         finally:
             transfer_socket.close()  # Close transfer socket
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) != 2:
+        print("Usage: python3 UDPserver.py <port>")
+        sys.exit(1)
+    port = int(sys.argv[1])
+    server = UDPServer(port)
+    server.start()
