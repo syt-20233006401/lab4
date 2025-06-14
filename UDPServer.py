@@ -52,3 +52,9 @@ class UDPServer:
             self.server_socket.sendto(response.encode(), client_addr)
         except Exception as e:
             print(f"[Server] Download request error: {e}")
+
+    def handle_file_transfer(self, filename, port, client_host):
+        # Handle file transfer
+        transfer_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        transfer_socket.bind(('', port))  # Bind transfer port
+        print(f"[File Transfer] Starting file {filename} transfer on port {port}")
